@@ -26,7 +26,7 @@ def download_audio(vid_url) :
     return yt.title, out_file
 
 
-@st.cache()
+#@st.cache()
 def submit_transcription(save_location) :
     
     def read_file(save_location, chunk_size=5242880):
@@ -42,10 +42,12 @@ def submit_transcription(save_location) :
                             data=read_file(save_location))
     return response.json()['upload_url'] # URL to the uploaded file
 
-@st.cache()
+#@st.cache()
 def do_transcription(ai_url):
     transcript_task = {
         'audio_url' : ai_url ,
+        'word_boost' : ["WIPO", "Wipo"] ,
+        'boost_param' : 'high' ,
         'speaker_labels' : True 
         }
     response = requests.post(transcript_endpoint,
@@ -57,21 +59,25 @@ def do_transcription(ai_url):
     
     speakers_df = pd.DataFrame()
     while True :
-        poll = requests.get(polling_endpoint, headers=headers)
+        transcript_task = {
+            'audio_url' : ai_url
+            }
+        poll = requests.get(polling_endpoint, headers=headers, json=transcript_task)
         status = poll.json()['status']
-        print(status)
-        print(poll)
+        print(status) 
 
         if status == 'submitted' or status == 'processing' :
             sleep(2)
-        elif status == 'complete' :
-            print(poll)
+        elif status == 'completed' :
             speakers = poll.json()['utterances']
-            print(speakers)
             speakers_df = pd.DataFrame(speakers)
             break
+        elif status == 'error' :
+            print(poll.json()['error'])
+            break
         else :
-            print(poll)
+            print('Unexpected exit status')
+            print(status)
             break
     return speakers_df
         

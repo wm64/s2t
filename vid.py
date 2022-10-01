@@ -22,11 +22,9 @@ ai_url = submit_transcription(save_location)
 speakers_df = pd.DataFrame()
 speakers_df = do_transcription(ai_url)
 
-st.dataframe(speakers_df)
-
 st.subheader("Index of Speakers")
 
 for index, row in speakers_df.iterrows() :
     with st.expander(row['speaker']) :
         st.write(row['text'])
-        st.button(row['start_time'])
+#        st.button(row['start'])
