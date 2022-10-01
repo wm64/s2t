@@ -15,7 +15,7 @@ headers = {
     'content_type' : 'application/json'
     }
 
-@st.cache()
+#@st.cache()
 def download_audio(vid_url) :
     yt = YouTube(vid_url)
     audio = yt.streams.filter(only_audio=True).first()
